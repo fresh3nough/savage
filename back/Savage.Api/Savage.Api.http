@@ -1,0 +1,6 @@
+@Savage.Api_HostAddress = http://localhost:5229
+
+GET {{Savage.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

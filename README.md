@@ -182,6 +182,150 @@ dotnet test back/Savage.Tests/Savage.Tests.csproj --verbosity normal && CI=true 
 
 ---
 
+## MongoDB Setup and Manual Queries
+
+### Connecting to the Mongo shell
+
+Make sure MongoDB is running, then open the shell:
+
+```bash
+mongosh
+```
+
+Switch to the Savage database:
+
+```
+use SavageDb
+```
+
+### List all collections
+
+```
+show collections
+```
+
+Expected output: `InventoryItems`, `Locations`, `Shipments`, `Users`, `Vendors`
+
+### Browse documents
+
+View all documents in a collection (limit to 5 for readability):
+
+```js
+db.Vendors.find().limit(5).pretty()
+db.InventoryItems.find().limit(5).pretty()
+db.Locations.find().limit(5).pretty()
+db.Shipments.find().limit(5).pretty()
+db.Users.find({}, { passwordHash: 0 }).limit(5).pretty()
+```
+
+### Example queries
+
+**Find all active vendors:**
+
+```js
+db.Vendors.find({ status: "Active" })
+```
+
+**Find a vendor by name:**
+
+```js
+db.Vendors.findOne({ name: "NeonTech Supplies" })
+```
+
+**Find all inventory items in the "Electronics" category:**
+
+```js
+db.InventoryItems.find({ category: "Electronics" })
+```
+
+**Find inventory items with quantity greater than 100:**
+
+```js
+db.InventoryItems.find({ quantity: { $gt: 100 } })
+```
+
+**Find inventory assigned to a specific vendor (by vendor ObjectId):**
+
+```js
+// First grab the vendor's _id
+var v = db.Vendors.findOne({ name: "ByteWare Logistics" })
+db.InventoryItems.find({ vendorId: v._id })
+```
+
+**Find items that are "Reserved" and flagged for review:**
+
+```js
+db.InventoryItems.find({ status: "Reserved", notes: "Flagged for review" })
+```
+
+**Count items per category:**
+
+```js
+db.InventoryItems.aggregate([
+  { $group: { _id: "$category", count: { $sum: 1 } } },
+  { $sort: { count: -1 } }
+])
+```
+
+**Find all warehouse-type locations:**
+
+```js
+db.Locations.find({ type: "Warehouse" })
+```
+
+**Find locations where occupancy exceeds 50% capacity:**
+
+```js
+db.Locations.find({
+  $expr: { $gt: ["$currentOccupancy", { $multiply: ["$capacity", 0.5] }] }
+})
+```
+
+**Find all shipments currently in transit:**
+
+```js
+db.Shipments.find({ status: "InTransit" })
+```
+
+**Find shipments for a specific vendor with their tracking numbers:**
+
+```js
+var v = db.Vendors.findOne({ name: "NeonTech Supplies" })
+db.Shipments.find(
+  { vendorId: v._id },
+  { trackingNumber: 1, status: 1, origin: 1, destination: 1 }
+)
+```
+
+**Find all admin users:**
+
+```js
+db.Users.find({ role: "Admin" }, { passwordHash: 0 })
+```
+
+**Find which vendor a user belongs to:**
+
+```js
+var u = db.Users.findOne({ username: "vendor1" })
+db.Vendors.findOne({ _id: u.vendorId })
+```
+
+### Useful maintenance commands
+
+```js
+// Count documents in each collection
+db.InventoryItems.countDocuments()
+db.Vendors.countDocuments()
+db.Locations.countDocuments()
+db.Shipments.countDocuments()
+db.Users.countDocuments()
+
+// Drop the entire database (use with caution -- reseeds on next backend start)
+db.dropDatabase()
+```
+
+---
+
 ## API Endpoints
 
 | Method | Endpoint              | Auth     | Description                     |

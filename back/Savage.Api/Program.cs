@@ -48,11 +48,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ── CORS (allow React dev server) ──
+// ── CORS (allow React dev server and production domain) ──
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(
+                  "http://localhost:3000",
+                  "http://slickkasf.com",
+                  "http://www.slickkasf.com",
+                  "https://slickkasf.com",
+                  "https://www.slickkasf.com")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });

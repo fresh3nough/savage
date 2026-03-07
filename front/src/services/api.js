@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Ensure production API URL always uses HTTPS to prevent mixed-content blocks
+const rawBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE = typeof window !== 'undefined' && window.location.protocol === 'https:'
+  ? rawBase.replace(/^http:/, 'https:')
+  : rawBase;
 
 /**
  * Axios instance with base URL and JSON defaults.

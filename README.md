@@ -36,7 +36,53 @@ sudo systemctl start mongod && sudo systemctl enable mongod
 
 ---
 
-## Setup
+## Quick Start (Recommended)
+
+The easiest way to run Savage is with the included start script. It handles all dependency installation and launches both servers in separate tmux windows.
+
+### Requirements
+
+The following must be installed before running the script:
+
+- **.NET SDK 8.0** -- `sudo apt-get install -y dotnet-sdk-8.0`
+- **MongoDB 7.0** -- see [Install prerequisites](#install-prerequisites-ubuntu) above
+- **tmux** -- `sudo apt-get install -y tmux`
+- **curl** -- needed for the automatic nvm/Node.js installation
+
+You do **not** need to install Node.js or nvm manually. The script installs nvm and Node 20 automatically if they are missing.
+
+### Run
+
+From the project root (`savage/` directory):
+
+```bash
+bash start.sh
+```
+
+The script will:
+
+1. Install nvm and Node 20 (if not already present)
+2. Verify .NET SDK and MongoDB are available
+3. Start MongoDB if it is not running
+4. Restore backend .NET dependencies and build the API
+5. Install frontend npm dependencies
+6. Launch the backend (port 5000) and frontend (port 3000) in separate tmux windows
+7. Attach you to the tmux session
+
+Once running, open http://localhost:3000 in your browser.
+
+### tmux controls
+
+- **Switch windows**: `Ctrl+B` then `N`
+- **Detach** (servers keep running): `Ctrl+B` then `D`
+- **Reattach**: `tmux attach -t savage`
+- **Stop everything**: `tmux kill-session -t savage`
+
+---
+
+## Manual Setup
+
+If you prefer to start each service yourself instead of using the start script:
 
 ### 1. Clone the repository
 
